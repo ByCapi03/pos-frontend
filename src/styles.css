@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700;800&display=swap');
 @import 'tailwindcss';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* =========================
    VARIABLES GLOBALES
@@ -43,7 +43,7 @@
   --space-xl: 32px;
 
   /* Tipografia */
-  --font-family-base: 'Inter', 'Segoe UI', Arial, sans-serif;
+  --font-family-base: 'Raleway', 'Segoe UI', Arial, sans-serif;
   --font-size-xs: 12px;
   --font-size-sm: 14px;
   --font-size-md: 16px;
@@ -101,18 +101,16 @@ textarea {
 ========================= */
 .page-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--color-bg), var(--color-bg-soft));
+  background: linear-gradient(135deg, #0f172a, #1e3a8a, #00c6fe);
   padding: calc(var(--header-height) + (var(--space-lg) * 2)) var(--space-lg) var(--space-lg);
+  color: #ffffff;
 }
 
-.panel {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+.page-container .text-muted {
+  color: #e2e8f0;
 }
 
-.glass-panel {
+.panel, .glass-panel {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -122,30 +120,25 @@ textarea {
   color: #ffffff;
 }
 
-.glass-panel .text-muted {
-  color: #e2e8f0;
+.panel .text-muted, .glass-panel .text-muted {
+  color: #f1f5f9;
+  font-weight: 400;
 }
 
-.glass-panel-dark {
+.card, .glass-panel-dark {
   background: rgba(15, 23, 42, 0.4);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-xl);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  padding: var(--space-md);
   color: #ffffff;
 }
 
-.glass-panel-dark .text-muted {
-  color: #e2e8f0;
-}
-
-.card {
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-md);
-  border: 1px solid var(--color-border);
+.card .text-muted, .glass-panel-dark .text-muted {
+  color: #f1f5f9;
+  font-weight: 400;
 }
 
 .card-hover {
@@ -215,6 +208,7 @@ textarea {
   padding: 12px 14px;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  color: var(--color-text);
 }
 
 .input:focus,

@@ -12,8 +12,8 @@ main {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(340px, 1.1fr);
-  align-items: center;
+  grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.2fr);
+  align-items: stretch;
   gap: 44px;
   min-height: 540px;
   padding: var(--space-xl) 0;
@@ -35,7 +35,8 @@ main {
   max-width: 620px;
   font-size: 52px;
   line-height: 1.1;
-  font-weight: 800;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: #ffffff;
 }
 
@@ -43,7 +44,7 @@ main {
   max-width: 540px;
   color: #f1f5f9;
   font-size: var(--font-size-lg);
-  font-weight: 400;
+  font-weight: 300;
   line-height: 1.6;
 }
 
@@ -54,16 +55,53 @@ main {
 }
 
 .hero-visual {
-  position: relative;
-  min-height: 430px;
+  display: flex;
+  padding: 12px;
+  border-radius: var(--radius-xl);
+  height: 100%;
 }
 
 .hero-visual img {
   width: 100%;
-  height: 390px;
+  height: 100%;
   object-fit: cover;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #06b6d4, #3b82f6);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.badge-cyan {
+  border: 1px solid #06b6d4;
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.1);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
 }
 
 .pos-preview {
@@ -151,16 +189,22 @@ main {
   font-weight: var(--font-weight-bold);
 }
 
-.benefit-icon.sales {
-  background: var(--color-primary);
+.box-blue {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.5);
 }
 
-.benefit-icon.stock {
-  background: var(--color-info);
+.box-purple {
+  background: rgba(139, 92, 246, 0.2);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.5);
 }
 
-.benefit-icon.clients {
-  background: var(--color-success);
+.box-green {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.5);
 }
 
 .benefits h2 {
