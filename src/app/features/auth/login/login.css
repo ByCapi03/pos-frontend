@@ -10,10 +10,31 @@
   place-items: center;
 }
 
+.login-container {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  width: min(800px, 100%);
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+}
+
+.login-visual {
+  display: block;
+}
+
+.login-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .login-panel {
   display: flex;
-  width: min(440px, 100%);
   flex-direction: column;
+  justify-content: center;
   gap: var(--space-lg);
   padding: var(--space-xl);
 }
@@ -159,6 +180,16 @@
 .recovery-form {
   display: grid;
   gap: var(--space-sm);
+}
+
+@media (max-width: 800px) {
+  .login-container {
+    grid-template-columns: 1fr;
+    max-width: 440px;
+  }
+  .login-visual {
+    display: none;
+  }
 }
 
 @media (max-width: 520px) {

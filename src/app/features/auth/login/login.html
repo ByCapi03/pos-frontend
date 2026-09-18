@@ -1,6 +1,10 @@
 <div class="login-page">
   <main class="login-shell">
-    <section class="login-panel panel">
+    <div class="login-container panel">
+      <div class="login-visual" aria-hidden="true">
+        <img src="/login-side.jpg" alt="Foto del sistema POS" />
+      </div>
+      <section class="login-panel">
       <a class="login-brand" href="/" aria-label="Volver al inicio">POS</a>
 
       <header class="login-header">
@@ -68,7 +72,8 @@
         Volver a la pagina principal?
         <a routerLink="/">Ir al inicio</a>
       </p>
-    </section>
+      </section>
+    </div>
   </main>
 
   @if (mostrarModalRecuperacion) {

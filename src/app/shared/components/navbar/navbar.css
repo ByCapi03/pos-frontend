@@ -49,10 +49,11 @@
 .brand strong {
   font-size: var(--font-size-lg);
   line-height: 1;
+  color: #ffffff;
 }
 
 .brand small {
-  color: var(--color-text-soft);
+  color: #e2e8f0;
   font-size: var(--font-size-xs);
 }
 
