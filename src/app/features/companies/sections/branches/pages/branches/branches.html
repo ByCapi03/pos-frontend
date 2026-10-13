@@ -126,16 +126,6 @@
             } @else if (branches.length === 0) {
               <section class="branches-state" aria-live="polite">
                 <p class="text-muted">Aun no tienes sucursales registradas.</p>
-                @if (hasPermission('SUCURSAL_CREAR')) {
-                  <button
-                    class="btn btn-primary"
-                    type="button"
-                    style="margin-top: var(--space-md);"
-                    (click)="setActiveTab('register')"
-                  >
-                    Registrar Nueva Sucursal
-                  </button>
-                }
               </section>
             } @else {
               <section class="branches-list" aria-label="Sucursales registradas">

@@ -55,8 +55,8 @@
   align-items: end;
   gap: var(--space-xs);
   padding: var(--space-sm) var(--space-sm) 0;
-  background: rgba(15, 23, 42, 0.4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--color-tabs-bg);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .tab-button {
@@ -65,7 +65,7 @@
   border-bottom: none;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   background: transparent;
-  color: #cbd5e1;
+  color: var(--color-text-soft);
   cursor: pointer;
   font-weight: var(--font-weight-semibold);
   padding: 10px var(--space-md);
@@ -80,10 +80,10 @@
 .tab-button.active {
   position: relative;
   top: 1px;
-  background: rgba(16, 185, 129, 0.22);
-  border-color: rgba(52, 211, 153, 0.4);
-  border-bottom: 2px solid #34d399;
-  color: #34d399;
+  background: var(--color-tab-active-bg);
+  border-color: var(--color-border-glow);
+  border-bottom: 2px solid var(--color-accent-green);
+  color: var(--color-tab-active-text);
   font-weight: 700;
   box-shadow: 0 -2px 10px rgba(16, 185, 129, 0.15);
 }
@@ -122,6 +122,14 @@
   gap: var(--space-xs);
 }
 
+.label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-title);
+  margin-bottom: 6px;
+}
+
 .form-grid-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -142,6 +150,7 @@
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
 }
 
 .list-item > div {

@@ -37,17 +37,17 @@
   align-items: end;
   gap: var(--space-xs);
   padding: var(--space-sm) var(--space-sm) 0;
-  background: rgba(15, 23, 42, 0.4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--color-tabs-bg);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .tab-button {
   min-height: 44px;
   border: 1px solid transparent;
   border-bottom: none;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-radius: 0;
   background: transparent;
-  color: #cbd5e1;
+  color: var(--color-text-soft);
   cursor: pointer;
   font-weight: var(--font-weight-semibold);
   padding: 10px var(--space-md);
@@ -55,17 +55,17 @@
 }
 
 .tab-button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: var(--color-surface-hover);
+  color: var(--color-text-title);
 }
 
 .tab-button.active {
   position: relative;
   top: 1px;
-  background: rgba(16, 185, 129, 0.22);
-  border-color: rgba(52, 211, 153, 0.4);
-  border-bottom: 2px solid #34d399;
-  color: #34d399;
+  background: var(--color-tab-active-bg);
+  border-color: var(--color-border-glow);
+  border-bottom: 2px solid var(--color-accent-green);
+  color: var(--color-tab-active-text);
   font-weight: 700;
   box-shadow: 0 -2px 10px rgba(16, 185, 129, 0.15);
 }
@@ -77,7 +77,7 @@
 }
 
 .feedback {
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   padding: 10px 12px;
@@ -126,9 +126,9 @@
   display: grid;
   gap: var(--space-lg);
   padding: var(--space-lg);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-md);
-  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-surface);
 }
 
 .form-grid {
@@ -158,9 +158,9 @@
 .table-shell {
   width: 100%;
   overflow-x: auto;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-md);
-  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  background: var(--color-surface);
 }
 
 .inventory-table {
@@ -170,23 +170,25 @@
 }
 
 .inventory-table tbody tr:hover {
-  background: rgba(52, 211, 153, 0.08);
+  background: var(--color-table-row-hover);
 }
 
+/* Filas de inventario limpias sin fondo amarillo */
 .inventory-table tbody tr.stock-warning-row {
-  background: rgba(245, 158, 11, 0.18);
+  background: transparent;
 }
 
 .inventory-table tbody tr.stock-warning-row:hover {
-  background: rgba(245, 158, 11, 0.28);
+  background: var(--color-table-row-hover);
 }
 
 .inventory-table td {
-  color: #f8fafc;
+  color: var(--color-text);
+  font-weight: 500;
 }
 
 .stock-warning-cell {
-  color: #fbbf24;
+  color: var(--color-warning-text);
   font-weight: var(--font-weight-bold);
 }
 
@@ -231,7 +233,7 @@
   .tab-button.active {
     top: 0;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
+    border-radius: 0;
   }
 
   .register-tab,

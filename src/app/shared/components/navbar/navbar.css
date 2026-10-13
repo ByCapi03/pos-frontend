@@ -10,6 +10,7 @@
   justify-content: space-between;
   gap: var(--space-md);
   padding: 12px var(--space-md);
+  border-radius: 0;
 }
 
 .brand {
@@ -25,7 +26,7 @@
   height: 44px;
   flex: 0 0 44px;
   place-items: center;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   background: var(--color-primary);
   color: white;
   box-shadow: var(--shadow-sm);
@@ -49,11 +50,11 @@
 .brand strong {
   font-size: var(--font-size-lg);
   line-height: 1;
-  color: #ffffff;
+  color: var(--color-text-title);
 }
 
 .brand small {
-  color: #e2e8f0;
+  color: var(--color-text-soft);
   font-size: var(--font-size-xs);
 }
 
@@ -78,10 +79,10 @@
   justify-content: center;
   position: relative;
   overflow: visible;
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-  border-radius: var(--radius-sm);
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 0;
   width: 42px;
   height: 42px;
   cursor: pointer;
@@ -89,7 +90,7 @@
 }
 
 .notifications-button:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--color-surface-solid);
 }
 
 .notifications-icon {

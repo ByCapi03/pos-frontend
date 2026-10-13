@@ -30,6 +30,14 @@
   gap: var(--space-sm);
 }
 
+.product-form .label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-title);
+  margin-bottom: 6px;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
