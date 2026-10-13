@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -34,6 +34,7 @@ export class OpenCashRegister {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly cashRegisterService = inject(CashRegisterService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly companyId = this.route.snapshot.paramMap.get('id') ?? '';
   protected readonly branchId = this.route.snapshot.paramMap.get('branchId') ?? '';
@@ -43,6 +44,8 @@ export class OpenCashRegister {
   protected note = '';
   protected cargando = false;
   protected mensajeError = '';
+  protected activeConflictSessionId: number | null = null;
+  protected conflictCashRegisterId: number | null = null;
 
   protected abrirCaja(event: SubmitEvent): void {
     event.preventDefault();
@@ -68,6 +71,7 @@ export class OpenCashRegister {
       .pipe(
         finalize(() => {
           this.cargando = false;
+          this.cdr.markForCheck();
         }),
       )
       .subscribe({
@@ -99,12 +103,19 @@ export class OpenCashRegister {
           }
 
           this.mensajeError = this.getErrorMessage(detail);
+          this.cdr.markForCheck();
         },
       });
   }
 
-  private getErrorMessage(detail?: string): string {
-    switch (detail) {
+  private getErrorMessage(detail?: unknown): string {
+    const message = typeof detail === 'object' && detail !== null && 'detail' in detail
+      ? String((detail as { detail: unknown }).detail)
+      : typeof detail === 'string'
+        ? detail
+        : undefined;
+
+    switch (message) {
       case 'Caja no encontrada.':
         return 'No se encontro la caja seleccionada.';
       case 'Empresa no encontrada para este usuario.':
@@ -113,8 +124,12 @@ export class OpenCashRegister {
         return 'Tu usuario no esta autorizado o se encuentra inactivo.';
       case 'No se pudo crear la sesion de caja.':
         return 'No se pudo crear la sesion de caja. Intenta nuevamente.';
+      case 'Esta caja tiene ya una sesion abierta':
+        return 'Esta caja ya tiene una sesion abierta.';
+      case 'Tienes una sesion abierta aun':
+        return 'Ya tienes una sesion abierta en esta u otra caja.';
       default:
-        return detail ?? 'No se pudo abrir la caja.';
+        return message ?? 'No se pudo abrir la caja.';
     }
   }
 
@@ -123,7 +138,7 @@ export class OpenCashRegister {
       return false;
     }
 
-    if (detail.detail === 'Tienes una sesion abierta aun') {
+    if (detail.detail === 'Tienes una sesion abierta aun' || detail.detail === 'Esta caja tiene ya una sesion abierta') {
       const policy: CashRegisterOpenPolicy = {
         mode: 'single-allowed',
         allowedCashRegisterId: detail.id_caja,
@@ -132,21 +147,10 @@ export class OpenCashRegister {
       };
 
       this.saveOpenPolicy(policy);
-      void this.router.navigate(['/company', this.companyId, 'branch', this.branchId, 'cash-register']);
-      return true;
-    }
-
-    if (detail.detail === 'Esta caja tiene ya una sesion abierta') {
-      const currentPolicy = this.getOpenPolicy();
-      const blockedIds = Array.from(new Set([...currentPolicy.blockedCashRegisterIds, detail.id_caja]));
-
-      this.saveOpenPolicy({
-        ...currentPolicy,
-        blockedCashRegisterIds: blockedIds,
-        sessionId: currentPolicy.sessionId,
-      });
-
-      void this.router.navigate(['/company', this.companyId, 'branch', this.branchId, 'cash-register']);
+      this.activeConflictSessionId = detail.id_caja_sesion ?? null;
+      this.conflictCashRegisterId = detail.id_caja ?? null;
+      this.mensajeError = `Esta caja ya tiene una sesión abierta activa (Sesión #${detail.id_caja_sesion}). Puedes ingresar directamente al POS para vender o cerrarla para abrir una nueva sesión.`;
+      this.cdr.markForCheck();
       return true;
     }
 

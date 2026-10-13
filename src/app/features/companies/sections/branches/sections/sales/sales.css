@@ -296,6 +296,41 @@
   opacity: 0.6;
 }
 
+/* ========================================================
+   APARTADOS DEL PUNTO DE VENTA (COLOR CODING Y JERARQUÍA)
+   Diferenciación cromática y estructural de cada sección
+======================================================== */
+
+/* Cabecera compartida para cada apartado */
+.panel-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-xs);
+}
+
+.panel-heading {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-title);
+  letter-spacing: -0.01em;
+}
+
+.panel-accent-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 8px;
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+/* Reglas base compartidas para paneles */
 .product-search-panel,
 .recommended-products-panel,
 .sale-summary-panel,
@@ -304,11 +339,235 @@
   gap: var(--space-md);
   min-width: 0;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   background: var(--color-surface);
   padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* ----------------------------------------------------
+   1. APARTADO: Búsqueda de Productos (Azul Cielo / Sky)
+---------------------------------------------------- */
+.product-search-panel {
+  border: 1px solid rgba(2, 132, 199, 0.45);
+  background: linear-gradient(180deg, rgba(2, 132, 199, 0.025) 0%, var(--color-surface) 65px);
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.04);
+}
+
+.search-pill {
+  background: rgba(2, 132, 199, 0.12);
+  color: #0369a1;
+  border: 1px solid rgba(2, 132, 199, 0.3);
+}
+
+.product-search-panel .input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18);
+}
+
+.product-search-panel .product-result:hover {
+  border-color: #0284c7;
+  background: rgba(2, 132, 199, 0.08);
+}
+
+.product-search-panel .product-meta strong {
+  color: #0284c7;
+}
+
+/* ----------------------------------------------------
+   2. APARTADO: Productos Recomendados (Violeta / Purple)
+---------------------------------------------------- */
+.recommended-products-panel {
+  border: 1px solid rgba(139, 92, 246, 0.45);
+  background: linear-gradient(180deg, rgba(139, 92, 246, 0.025) 0%, var(--color-surface) 65px);
+  box-shadow: 0 2px 10px rgba(139, 92, 246, 0.04);
+}
+
+.recommended-pill {
+  background: rgba(139, 92, 246, 0.12);
+  color: #6d28d9;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.recommended-products-panel .product-result:hover {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.recommended-products-panel .product-meta strong {
+  color: #7c3aed;
+}
+
+/* ----------------------------------------------------
+   3. APARTADO: Datos de la Venta / Cliente (Ámbar Cálido)
+---------------------------------------------------- */
+.sale-config-panel {
+  border: 1px solid rgba(217, 119, 6, 0.45);
+  background: linear-gradient(180deg, rgba(217, 119, 6, 0.025) 0%, var(--color-surface) 65px);
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.04);
+}
+
+.config-pill {
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.sale-config-panel .select:focus {
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
+}
+
+/* ----------------------------------------------------
+   4. APARTADO: Detalle de Cobro (Esmeralda POS)
+---------------------------------------------------- */
+.sale-checkout-panel {
+  border: 1px solid rgba(5, 150, 105, 0.45);
+  background: linear-gradient(180deg, rgba(5, 150, 105, 0.035) 0%, var(--color-surface) 75px);
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.08);
+}
+
+.checkout-pill {
+  background: rgba(5, 150, 105, 0.14);
+  color: #047857;
+  border: 1px solid rgba(5, 150, 105, 0.35);
+  font-weight: 700;
+}
+
+.sale-checkout-panel .totals-list {
+  display: grid;
+  gap: var(--space-sm);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-md);
+}
+
+.sale-checkout-panel .total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(5, 150, 105, 0.08);
+  border: 1px solid rgba(5, 150, 105, 0.3);
+  border-radius: 0;
+  padding: 12px 14px;
+  margin-top: 4px;
+}
+
+.sale-checkout-panel .total-row dt {
+  color: #065f46;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.sale-checkout-panel .total-row dd {
+  color: #047857;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.sale-checkout-panel .charge-button {
+  width: 100%;
+  min-height: 48px;
+  background: #059669;
+  border: 1px solid #047857;
+  border-radius: 0;
+  color: #ffffff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(5, 150, 105, 0.28);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sale-checkout-panel .charge-button:hover:not(:disabled) {
+  background: #047857;
+  box-shadow: 0 6px 18px rgba(5, 150, 105, 0.4);
+}
+
+/* ----------------------------------------------------
+   5. APARTADO: Detalle de Venta / Carrito (Teal)
+---------------------------------------------------- */
+.sale-detail-panel {
+  border: 1px solid rgba(13, 148, 136, 0.45);
+  background: linear-gradient(180deg, rgba(13, 148, 136, 0.025) 0%, var(--color-surface) 65px);
+  box-shadow: 0 2px 10px rgba(13, 148, 136, 0.04);
+}
+
+.cart-pill {
+  background: rgba(13, 148, 136, 0.12);
+  color: #0f766e;
+  border: 1px solid rgba(13, 148, 136, 0.3);
+  font-weight: 600;
+}
+
+.sale-detail-panel thead th {
+  background: #f0fdfa;
+  color: #0f766e;
+  border-bottom: 1px solid #0d9488;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.sale-detail-panel .sale-detail-table tbody tr:hover {
+  background: rgba(13, 148, 136, 0.05);
+}
+
+.sale-detail-panel td:nth-child(5) {
+  font-weight: 700;
+  color: #0f766e;
+}
+
+/* ========================================================
+   SOPORTE TEMA OSCURO PARA LOS 5 APARTADOS DEL POS
+======================================================== */
+body.dark-theme .product-search-panel {
+  border-color: rgba(56, 189, 248, 0.45);
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.06) 0%, var(--color-surface) 65px);
+}
+body.dark-theme .search-pill { background: rgba(56, 189, 248, 0.18); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.35); }
+body.dark-theme .product-search-panel .product-meta strong { color: #38bdf8; }
+
+body.dark-theme .recommended-products-panel {
+  border-color: rgba(167, 139, 250, 0.45);
+  background: linear-gradient(180deg, rgba(167, 139, 250, 0.06) 0%, var(--color-surface) 65px);
+}
+body.dark-theme .recommended-pill { background: rgba(167, 139, 250, 0.18); color: #c4b5fd; border-color: rgba(167, 139, 250, 0.35); }
+body.dark-theme .recommended-products-panel .product-meta strong { color: #c4b5fd; }
+
+body.dark-theme .sale-config-panel {
+  border-color: rgba(251, 191, 36, 0.45);
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.06) 0%, var(--color-surface) 65px);
+}
+body.dark-theme .config-pill { background: rgba(251, 191, 36, 0.18); color: #fde68a; border-color: rgba(251, 191, 36, 0.35); }
+
+body.dark-theme .sale-checkout-panel {
+  border-color: rgba(52, 211, 153, 0.45);
+  background: linear-gradient(180deg, rgba(52, 211, 153, 0.06) 0%, var(--color-surface) 75px);
+}
+body.dark-theme .checkout-pill { background: rgba(52, 211, 153, 0.2); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.4); }
+body.dark-theme .sale-checkout-panel .total-row {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: rgba(52, 211, 153, 0.35);
+}
+body.dark-theme .sale-checkout-panel .total-row dt { color: #f8fafc; }
+body.dark-theme .sale-checkout-panel .total-row dd { color: #34d399; }
+
+body.dark-theme .sale-detail-panel {
+  border-color: rgba(45, 212, 191, 0.45);
+  background: linear-gradient(180deg, rgba(45, 212, 191, 0.06) 0%, var(--color-surface) 65px);
+}
+body.dark-theme .cart-pill { background: rgba(45, 212, 191, 0.18); color: #5eead4; border-color: rgba(45, 212, 191, 0.35); }
+body.dark-theme .sale-detail-panel thead th {
+  background: rgba(15, 23, 42, 0.85);
+  color: #2dd4bf;
+  border-bottom-color: #2dd4bf;
+}
+body.dark-theme .sale-detail-panel td:nth-child(5) { color: #2dd4bf; }
+
+/* Resultados de búsqueda de productos */
 .product-results {
   display: grid;
   gap: var(--space-sm);
@@ -324,17 +583,13 @@
   gap: var(--space-md);
   width: 100%;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   background: var(--color-surface-2);
   color: var(--color-text);
   cursor: pointer;
   padding: 12px 14px;
   text-align: left;
-}
-
-.product-result:hover {
-  border-color: rgba(0, 198, 254, 0.55);
-  background: rgba(0, 198, 254, 0.08);
+  transition: all 0.15s ease;
 }
 
 .product-result span,
@@ -355,38 +610,6 @@
   white-space: nowrap;
 }
 
-.totals-list {
-  display: grid;
-  gap: var(--space-sm);
-  border-top: 1px solid var(--color-border);
-  padding-top: var(--space-md);
-}
-
-.totals-list div {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-md);
-}
-
-.totals-list dt {
-  color: var(--color-text-soft);
-}
-
-.totals-list dd {
-  font-weight: var(--font-weight-semibold);
-}
-
-.total-row {
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text);
-  font-size: var(--font-size-lg);
-  padding-top: var(--space-sm);
-}
-
-.charge-button {
-  width: 100%;
-  min-height: 46px;
-}
 
 .detail-header {
   display: flex;
@@ -399,7 +622,7 @@
   width: 100%;
   overflow-x: auto;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: 0;
   background: var(--color-surface);
 }
 

@@ -266,6 +266,9 @@ export class Sales implements OnInit {
             queryParamsHandling: 'merge',
             replaceUrl: true
           });
+        } else if (this.cashRegisterSessionId) {
+          // Si ya contamos con sessionId en queryParams, permitir continuar operando en POS
+          return;
         } else {
           this.router.navigate(['/company', this.companyId, 'branch', this.branchId, 'cash-register']);
         }

@@ -33,54 +33,72 @@
           Plataforma centralizada para la administración de cajas, supervisión de stock en tiempo real, gestión de personal por roles y emisión de facturación comercial.
         </p>
 
-        <div class="hero-highlights">
-          <div class="highlight-item">
-            <svg class="highlight-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <span>Arqueo y control de turnos de caja</span>
+        <div class="hero-capabilities-grid">
+          <div class="capability-item">
+            <div class="capability-icon-wrap emerald" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="capability-text">
+              <strong>Control de Cajas</strong>
+              <span>Arqueo y turnos en tiempo real</span>
+            </div>
           </div>
-          <div class="highlight-item">
-            <svg class="highlight-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <span>Alertas de stock mínimo por sucursal</span>
-          </div>
-          <div class="highlight-item">
-            <svg class="highlight-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-            </svg>
-            <span>Facturación y reportes consolidados</span>
-          </div>
-        </div>
 
-        <div class="hero-actions">
-          @if (authService.isAuthenticated()) {
-            <a class="btn btn-primary hero-btn" routerLink="/my-companies">
-              Ingresar a Mis Sucursales
-            </a>
-          } @else {
-            <a class="btn btn-primary hero-btn" routerLink="/login">
-              Iniciar Sesión
-            </a>
-            <a class="btn btn-secondary hero-btn" routerLink="/register">
-              Registrar Empresa
-            </a>
-          }
+          <div class="capability-item">
+            <div class="capability-icon-wrap sky" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="capability-text">
+              <strong>Gestión de Stock</strong>
+              <span>Alertas de mínimo por sucursal</span>
+            </div>
+          </div>
+
+          <div class="capability-item">
+            <div class="capability-icon-wrap amber" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="capability-text">
+              <strong>Multi-Sucursal</strong>
+              <span>Gestión de personal y roles</span>
+            </div>
+          </div>
+
+          <div class="capability-item">
+            <div class="capability-icon-wrap purple" aria-hidden="true">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <div class="capability-text">
+              <strong>Facturación</strong>
+              <span>Comprobantes y reportes</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Modules Grid Section -->
     <section class="modules-section" aria-label="Módulos del sistema">
-      <div class="section-header panel">
-        <h2 class="title-lg">Módulos del Sistema</h2>
-        <p class="text-muted">Herramientas operativas integradas para la gestión diaria de tu empresa.</p>
+      <div class="section-header">
+        <div class="section-tag">
+          <span class="tag-accent" aria-hidden="true"></span>
+          <span>ARQUITECTURA DEL SISTEMA</span>
+        </div>
+        <h2 class="title-lg">Módulos Operativos</h2>
+        <p class="text-muted">Herramientas integradas para la administración comercial y financiera de tu empresa.</p>
       </div>
 
       <div class="modules-grid">
         <!-- Module 1: Ventas y Caja -->
-        <article class="module-card card">
+        <article class="module-card card module-emerald">
           <div class="module-header">
             <div class="module-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -101,7 +119,7 @@
         </article>
 
         <!-- Module 2: Inventario -->
-        <article class="module-card card">
+        <article class="module-card card module-sky">
           <div class="module-header">
             <div class="module-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -119,7 +137,7 @@
         </article>
 
         <!-- Module 3: Sucursales y Personal -->
-        <article class="module-card card">
+        <article class="module-card card module-amber">
           <div class="module-header">
             <div class="module-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -138,7 +156,7 @@
         </article>
 
         <!-- Module 4: Facturación y Reportes -->
-        <article class="module-card card">
+        <article class="module-card card module-purple">
           <div class="module-header">
             <div class="module-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

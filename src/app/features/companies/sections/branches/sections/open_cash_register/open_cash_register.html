@@ -17,8 +17,30 @@
           aria-label="Formulario para abrir caja"
           (submit)="abrirCaja($event)"
         >
-          @if (mensajeError) {
-            <p class="text-danger" role="alert">{{ mensajeError }}</p>
+          @if (activeConflictSessionId) {
+            <div class="feedback feedback-warning" style="margin-bottom: var(--space-md); display: flex; flex-direction: column; gap: var(--space-sm);">
+              <p style="margin: 0; font-weight: 600;">
+                {{ mensajeError }}
+              </p>
+              <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap; margin-top: var(--space-xs);">
+                <a
+                  class="btn btn-primary btn-sm"
+                  [routerLink]="['/company', companyId, 'branch', branchId, 'cash-register', conflictCashRegisterId || cashRegisterId, 'sales']"
+                  [queryParams]="{ sessionId: activeConflictSessionId }"
+                >
+                  Ingresar al POS (Ventas)
+                </a>
+                <a
+                  class="btn btn-secondary btn-sm"
+                  [routerLink]="['/company', companyId, 'branch', branchId, 'cash-register', conflictCashRegisterId || cashRegisterId, 'close-cash-register']"
+                  [queryParams]="{ sessionId: activeConflictSessionId }"
+                >
+                  Cerrar Caja
+                </a>
+              </div>
+            </div>
+          } @else if (mensajeError) {
+            <p class="feedback feedback-error" role="alert">{{ mensajeError }}</p>
           }
 
           <div class="form-grid">

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import {
@@ -29,7 +29,7 @@ interface ClientCategoryOption {
 @Component({
   selector: 'app-edit-client',
   standalone: true,
-  imports: [FormsModule, Navbar, Sidebar, RouterLink],
+  imports: [FormsModule, Navbar, Sidebar],
   templateUrl: './edit-client.html',
   styleUrls: ['./edit-client.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,

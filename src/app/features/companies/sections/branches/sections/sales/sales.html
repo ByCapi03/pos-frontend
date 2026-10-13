@@ -86,8 +86,12 @@
                   <div class="sale-workspace">
                     <div class="product-column">
                       <section class="product-search-panel" aria-label="Buscar productos">
-                        <div class="form-group">
-                          <label class="label" for="productSearch">Buscar producto</label>
+                        <div class="panel-section-header">
+                          <h2 class="title-md panel-heading">Buscar Producto</h2>
+                          <span class="panel-accent-pill search-pill">Catálogo</span>
+                        </div>
+
+                        <div class="form-group search-form-group">
                           <div style="display: flex; gap: 8px;">
                             <input
                               class="input"
@@ -136,7 +140,10 @@
                       </section>
 
                       <section class="recommended-products-panel" aria-label="Productos recomendados">
-                        <h2 class="title-md">Productos Recomendados</h2>
+                        <div class="panel-section-header">
+                          <h2 class="title-md panel-heading">Productos Recomendados</h2>
+                          <span class="panel-accent-pill recommended-pill">Sugerencias</span>
+                        </div>
 
                         @if (loadingRecommendedProducts) {
                           <section class="sales-state compact" aria-live="polite">
@@ -177,97 +184,104 @@
                     </div>
 
                     <aside class="sale-summary-column" aria-label="Resumen de venta">
-                      <section class="sale-summary-panel" aria-label="Datos de venta">
-                      <div class="form-group">
-                        <label class="label" for="saleType">Tipo de venta</label>
-                        <select
-                          class="select"
-                          id="saleType"
-                          name="saleType"
-                          [(ngModel)]="selectedSaleTypeId"
-                          [disabled]="loadingSaleTypes || saleTypes.length === 0"
-                        >
-                          @for (saleType of saleTypes; track saleType.id) {
-                            <option [ngValue]="saleType.id" [disabled]="isSaleTypeDisabled(saleType)">{{ saleType.nombre }}</option>
+                      <section class="sale-summary-panel sale-config-panel" aria-label="Datos de venta">
+                        <div class="panel-section-header">
+                          <h2 class="title-md panel-heading">Datos de la Venta</h2>
+                          <span class="panel-accent-pill config-pill">Cliente</span>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="label" for="saleType">Tipo de venta</label>
+                          <select
+                            class="select"
+                            id="saleType"
+                            name="saleType"
+                            [(ngModel)]="selectedSaleTypeId"
+                            [disabled]="loadingSaleTypes || saleTypes.length === 0"
+                          >
+                            @for (saleType of saleTypes; track saleType.id) {
+                              <option [ngValue]="saleType.id" [disabled]="isSaleTypeDisabled(saleType)">{{ saleType.nombre }}</option>
+                            }
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label class="label" for="client">Cliente opcional</label>
+                          <select
+                            class="select"
+                            id="client"
+                            name="client"
+                            [(ngModel)]="selectedClientId"
+                            (ngModelChange)="onClientSelected($event)"
+                          >
+                            <option [ngValue]="null">Consumidor final</option>
+                            @for (client of clients; track trackClient($index, client)) {
+                              <option [ngValue]="client.id">{{ client.nombre }}</option>
+                            }
+                          </select>
+                          @if (selectedClientCategory) {
+                            <small class="text-muted">Categoria: {{ selectedClientCategory.nombre }}</small>
                           }
-                        </select>
-                      </div>
+                        </div>
 
-                      <div class="form-group">
-                        <label class="label" for="client">Cliente opcional</label>
-                        <select
-                          class="select"
-                          id="client"
-                          name="client"
-                          [(ngModel)]="selectedClientId"
-                          (ngModelChange)="onClientSelected($event)"
-                        >
-                          <option [ngValue]="null">Consumidor final</option>
-                          @for (client of clients; track trackClient($index, client)) {
-                            <option [ngValue]="client.id">{{ client.nombre }}</option>
-                          }
-                        </select>
-                        @if (selectedClientCategory) {
-                          <small class="text-muted">Categoria: {{ selectedClientCategory.nombre }}</small>
-                        }
-                      </div>
-
-                      <div class="form-group status-field">
-                        <span class="label">Factura en Linea</span>
-                        <label class="switch">
-                          <input
-                            type="checkbox"
-                            name="onlineInvoice"
-                            [(ngModel)]="onlineInvoice"
-                            [disabled]="!selectedClientId"
-                          />
-                          <span class="switch-track" aria-hidden="true">
-                            <span class="switch-thumb"></span>
-                          </span>
-                          <span class="text-muted">
-                            {{ selectedClientId ? 'Factura en Linea' : 'Selecciona un cliente para facturar en linea' }}
-                          </span>
-                        </label>
-                      </div>
-
-                      <!-- El campo global de descuento de venta fue eliminado seg�n solicitud del UX -->
-
+                        <div class="form-group status-field">
+                          <span class="label">Factura en Linea</span>
+                          <label class="switch">
+                            <input
+                              type="checkbox"
+                              name="onlineInvoice"
+                              [(ngModel)]="onlineInvoice"
+                              [disabled]="!selectedClientId"
+                            />
+                            <span class="switch-track" aria-hidden="true">
+                              <span class="switch-thumb"></span>
+                            </span>
+                            <span class="text-muted">
+                              {{ selectedClientId ? 'Factura en Linea' : 'Selecciona un cliente para facturar en linea' }}
+                            </span>
+                          </label>
+                        </div>
                       </section>
 
-                      <section class="sale-summary-panel" aria-label="Detalle de cobro">
-                      <h2 class="title-md">Detalle de cobro</h2>
+                      <section class="sale-summary-panel sale-checkout-panel" aria-label="Detalle de cobro">
+                        <div class="panel-section-header">
+                          <h2 class="title-md panel-heading">Detalle de Cobro</h2>
+                          <span class="panel-accent-pill checkout-pill">POS Caja</span>
+                        </div>
 
-                      <dl class="totals-list">
-                        <div>
-                          <dt>Subtotal</dt>
-                          <dd>Bs {{ formatCurrency(subtotal) }}</dd>
-                        </div>
-                        <div>
-                          <dt>Descuento total</dt>
-                          <dd>Bs {{ formatCurrency(discountTotal) }}</dd>
-                        </div>
-                        <div class="total-row">
-                          <dt>Total</dt>
-                          <dd>Bs {{ formatCurrency(total) }}</dd>
-                        </div>
-                      </dl>
+                        <dl class="totals-list">
+                          <div>
+                            <dt>Subtotal</dt>
+                            <dd>Bs {{ formatCurrency(subtotal) }}</dd>
+                          </div>
+                          <div>
+                            <dt>Descuento total</dt>
+                            <dd>Bs {{ formatCurrency(discountTotal) }}</dd>
+                          </div>
+                          <div class="total-row">
+                            <dt>Total a Cobrar</dt>
+                            <dd>Bs {{ formatCurrency(total) }}</dd>
+                          </div>
+                        </dl>
 
-                      <button
-                        class="btn btn-primary charge-button"
-                        type="button"
-                        [disabled]="saleDetails.length === 0 || chargingSale"
-                        (click)="cobrar()"
-                      >
-                        {{ chargingSale ? 'Registrando...' : (selectedSaleTypeIsCredit ? 'Registrar Venta al Credito' : 'Cobrar') }}
-                      </button>
+                        <button
+                          class="btn btn-primary charge-button"
+                          type="button"
+                          [disabled]="saleDetails.length === 0 || chargingSale"
+                          (click)="cobrar()"
+                        >
+                          {{ chargingSale ? 'Registrando...' : (selectedSaleTypeIsCredit ? 'Registrar Venta al Credito' : 'Cobrar') }}
+                        </button>
                       </section>
                     </aside>
                   </div>
 
                   <section class="sale-detail-panel" aria-label="Detalle de venta">
-                    <div class="detail-header">
-                      <h2 class="title-md">Detalle de venta</h2>
-                      <p class="text-muted">{{ saleDetails.length }} productos agregados</p>
+                    <div class="panel-section-header detail-header">
+                      <h2 class="title-md panel-heading">Detalle de Venta</h2>
+                      <span class="panel-accent-pill cart-pill">
+                        {{ saleDetails.length }} {{ saleDetails.length === 1 ? 'producto agregado' : 'productos agregados' }}
+                      </span>
                     </div>
 
                     @if (saleDetails.length === 0) {

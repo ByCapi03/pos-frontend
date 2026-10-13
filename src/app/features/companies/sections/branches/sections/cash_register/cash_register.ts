@@ -307,10 +307,31 @@ export class CashRegister implements OnInit {
   }
 
   private mapCashRegisterResponse(cashRegister: CashRegisterResponse): CashRegisterItem {
-    const estadoOperativo = cashRegister.estado_operativo ?? (cashRegister.activo ? 'disponible' : 'inactiva');
+    const id = cashRegister.id_caja ?? cashRegister.id ?? this.getNextId();
+    let estadoOperativo = cashRegister.estado_operativo;
+    let sessionId: number | null = cashRegister.sesion_activa?.id_caja_sesion ?? null;
+
+    if (!estadoOperativo) {
+      const policyKey = `cash-register-open-policy:${this.companyId}:${this.branchId}`;
+      const rawPolicy = sessionStorage.getItem(policyKey);
+      if (rawPolicy) {
+        try {
+          const parsed = JSON.parse(rawPolicy);
+          if (parsed.allowedCashRegisterId === id && parsed.sessionId) {
+            estadoOperativo = 'abierta_por_mi';
+            sessionId = parsed.sessionId;
+          } else if (parsed.blockedCashRegisterIds?.includes(id)) {
+            estadoOperativo = 'en_uso';
+          }
+        } catch {}
+      }
+    }
+
+    if (!estadoOperativo) {
+      estadoOperativo = cashRegister.activo ? 'disponible' : 'inactiva';
+    }
     
     let actionLabel: CashRegisterItem['actionLabel'] = 'Abrir caja';
-    let sessionId: number | null = null;
     
     if (estadoOperativo === 'inactiva') {
       actionLabel = 'Caja inactiva';
@@ -318,13 +339,12 @@ export class CashRegister implements OnInit {
       actionLabel = 'Abrir caja';
     } else if (estadoOperativo === 'abierta_por_mi') {
       actionLabel = 'Ingresar al POS';
-      sessionId = cashRegister.sesion_activa?.id_caja_sesion ?? null;
     } else if (estadoOperativo === 'en_uso') {
       actionLabel = 'Acción deshabilitada';
     }
 
     return {
-      id: cashRegister.id_caja ?? cashRegister.id ?? this.getNextId(),
+      id,
       codigo: cashRegister.codigo,
       nombre: cashRegister.nombre,
       fechaCreacion: this.formatDate(cashRegister.fecha_creacion ?? cashRegister.fecha_registro),

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import {
@@ -13,7 +13,7 @@ import { Sidebar } from '../../../../../../../shared/components/sidebar/sidebar'
 
 @Component({
   selector: 'app-edit-client-category',
-  imports: [FormsModule, Navbar, Sidebar, RouterLink],
+  imports: [FormsModule, Navbar, Sidebar],
   templateUrl: './edit-category.html',
   styleUrl: './edit-category.css',
 })
