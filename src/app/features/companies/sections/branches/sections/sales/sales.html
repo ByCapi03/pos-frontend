@@ -8,8 +8,13 @@
       <section class="sales-header panel">
         @if (viewMode === 'sales') {
           <div>
-            <p class="badge badge-success">Caja {{ cashRegisterId }}</p>
-            <h1 class="title-xl">Ventas</h1>
+            <div style="display: flex; gap: var(--space-xs); align-items: center; margin-bottom: 4px;">
+              <p class="badge badge-success">Caja {{ cashRegisterId }}</p>
+              @if (cashRegisterSessionId) {
+                <p class="badge badge-primary">Sesión #{{ cashRegisterSessionId }}</p>
+              }
+            </div>
+            <h1 class="title-xl">Punto de Venta</h1>
             <p class="text-muted">Registra ventas y consulta el historial de esta caja.</p>
           </div>
         } @else {
@@ -472,34 +477,70 @@
                 </section>
               } @else {
                 <section class="history-panel" aria-label="Historial de ventas">
-                  <div class="table-shell">
-                    <table class="table movement-table history-table">
-                      <thead>
-                        <tr>
-                          <th>Fecha</th>
-                          <th>Tipo</th>
-                          <th>Total</th>
-                          <th>Subtotal</th>
-                          <th>Descuento</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        @for (sale of salesHistory; track sale.id) {
-                          <tr>
-                            <td>
-                              <strong>{{ sale.fecha }}</strong>
-                            </td>
-                            <td>
-                              <strong>{{ sale.tipoVenta }}</strong>
-                            </td>
-                            <td><strong>Bs {{ formatCurrency(sale.total) }}</strong></td>
-                            <td>Bs {{ formatCurrency(sale.subtotal) }}</td>
-                            <td>Bs {{ formatCurrency(sale.descuentoTotal) }}</td>
-                          </tr>
+                  <div class="history-toolbar">
+                    <div class="history-filter-item">
+                      <label class="label" for="historyClientFilter">Filtrar por Cliente:</label>
+                      <select
+                        id="historyClientFilter"
+                        class="select history-select"
+                        [(ngModel)]="historySelectedClientId"
+                      >
+                        <option value="all">Todos los clientes (General)</option>
+                        @for (client of clients; track client.id) {
+                          <option [value]="client.id">{{ client.nombre }}</option>
                         }
-                      </tbody>
-                    </table>
+                      </select>
+                    </div>
+                    <div class="history-badge-info">
+                      <span class="badge badge-success">Ventas Completadas: {{ filteredSalesHistory.length }}</span>
+                    </div>
                   </div>
+
+                  @if (filteredSalesHistory.length === 0) {
+                    <section class="sales-state" aria-live="polite">
+                      <p class="text-muted">No se encontraron ventas completadas para el cliente seleccionado.</p>
+                    </section>
+                  } @else {
+                    <div class="table-shell">
+                      <table class="table movement-table history-table">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Cliente</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                            <th class="text-right">Detalle</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (sale of filteredSalesHistory; track sale.id) {
+                            <tr>
+                              <td><strong>#{{ sale.id }}</strong></td>
+                              <td>{{ sale.fecha }}</td>
+                              <td><strong>{{ sale.cliente }}</strong></td>
+                              <td>{{ sale.tipoVenta }}</td>
+                              <td>
+                                <span class="badge badge-success">{{ sale.estado }}</span>
+                              </td>
+                              <td><strong>Bs {{ formatCurrency(sale.total) }}</strong></td>
+                              <td class="text-right">
+                                <button
+                                  type="button"
+                                  class="btn btn-primary btn-sm"
+                                  (click)="openSaleDetailModal(sale)"
+                                  title="Ver detalle de productos de esta venta"
+                                >
+                                  Ver detalle
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
                 </section>
               }
             } @else {
@@ -710,5 +751,120 @@
         </div>
       </div>
     </div>
+  </div>
+}
+
+<!-- Modal Detalle de Venta (HU-11: Criterio Solo Lectura) -->
+@if (isSaleDetailModalOpen && selectedSaleDetail) {
+  <div class="modal-backdrop" role="presentation">
+    <section
+      class="sale-detail-modal panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="saleDetailTitle"
+    >
+      <header class="modal-header">
+        <div>
+          <span class="badge badge-success">Venta #{{ selectedSaleDetail.id }}</span>
+          <h2 class="title-lg" id="saleDetailTitle">Detalle de Compra del Cliente</h2>
+          <p class="text-muted text-sm">Historial de consumo - Información de solo lectura</p>
+        </div>
+        <button
+          class="modal-close"
+          type="button"
+          aria-label="Cerrar modal"
+          (click)="closeSaleDetailModal()"
+        >
+          &times;
+        </button>
+      </header>
+
+      <div class="sale-summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">CLIENTE</span>
+          <strong class="summary-value">{{ selectedSaleDetail.cliente }}</strong>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">FECHA</span>
+          <strong class="summary-value">{{ selectedSaleDetail.fecha }}</strong>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">TIPO VENTA</span>
+          <strong class="summary-value">{{ selectedSaleDetail.tipoVenta }}</strong>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">ESTADO</span>
+          <div><span class="badge badge-success">{{ selectedSaleDetail.estado }}</span></div>
+        </div>
+        <div class="summary-item span-full">
+          <span class="summary-label">METODOS DE PAGO</span>
+          <span class="summary-value">{{ selectedSaleDetail.metodosPago }}</span>
+        </div>
+      </div>
+
+      <div class="table-shell detail-table-shell">
+        <table class="table detail-items-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio Unitario</th>
+              <th>Descuento</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of selectedSaleDetail.detalles; track item.id_detalle_venta) {
+              <tr>
+                <td>
+                  <strong>{{ item.producto?.nombre ?? item.descripcion ?? ('Producto #' + item.id_producto) }}</strong>
+                  @if (item.producto?.codigo_barra) {
+                    <div class="text-xs text-muted">Cod: {{ item.producto?.codigo_barra }}</div>
+                  }
+                </td>
+                <td>{{ item.cantidad }} {{ item.producto?.unidad_medida ?? 'uds' }}</td>
+                <td>Bs {{ formatCurrency(item.precio_unitario) }}</td>
+                <td>Bs {{ formatCurrency(item.descuento) }}</td>
+                <td><strong>Bs {{ formatCurrency(item.subtotal) }}</strong></td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="text-muted text-center py-4">
+                  No se registraron productos desglosados para esta venta.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sale-totals-box">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>Bs {{ formatCurrency(selectedSaleDetail.subtotal) }}</span>
+        </div>
+        <div class="total-row">
+          <span>Descuento total:</span>
+          <span class="text-danger">- Bs {{ formatCurrency(selectedSaleDetail.descuentoTotal) }}</span>
+        </div>
+        <div class="total-row total-final">
+          <strong>Total Venta:</strong>
+          <strong class="text-success">Bs {{ formatCurrency(selectedSaleDetail.total) }}</strong>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <span class="readonly-badge text-muted text-xs">
+          🔒 Esta pantalla es de solo lectura. No se puede modificar ni anular desde esta consulta.
+        </span>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="closeSaleDetailModal()"
+        >
+          Cerrar
+        </button>
+      </footer>
+    </section>
   </div>
 }

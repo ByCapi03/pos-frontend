@@ -35,6 +35,7 @@ import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { HomePage } from './features/landing/home_page/home_page';
 import { authGuard } from './core/guards/auth.guard';
+import { permissionGuard } from './core/guards/permission.guard';
 import { Settings } from './features/companies/pages/settings/settings';
 
 export const routes: Routes = [
@@ -93,12 +94,14 @@ export const routes: Routes = [
   {
     path: 'company/:id/users/staff',
     component: Staff,
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'USUARIO_VER' },
   },
   {
     path: 'company/:id/users/rols',
     component: Rols,
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'ROL_VER' },
   },
   {
     path: 'company/:id/branch/:branchId/cash-register',
@@ -138,27 +141,32 @@ export const routes: Routes = [
   {
     path: 'company/:id/dashboard',
     component: Dashboard,
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'DASHBOARD_VER' },
   },
   {
     path: 'company/:id/reports/static',
     component: StaticReports,
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'REPORTE_GENERAR' },
   },
   {
     path: 'company/:id/reports/parameterized',
     component: ParameterizedReports,
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'REPORTE_GENERAR' },
   },
   {
     path: 'company/:id/reports/dynamic',
     component: DynamicReports,
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'REPORTE_GENERAR' },
   },
   {
     path: 'company/:id/reports/prediction',
     component: SalesPrediction,
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'REPORTE_GENERAR' },
   },
   {
     path: 'company/:id/reports/invoices',
@@ -166,7 +174,8 @@ export const routes: Routes = [
       import('./features/companies/sections/reports/invoices/invoices').then(
         (component) => component.InvoicesReport,
       ),
-    canActivate: [authGuard],
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'REPORTE_GENERAR' },
   },
   {
     path: 'company/:id/products/categories',

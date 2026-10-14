@@ -6,26 +6,59 @@
       <section class="close-cash-register-header panel">
         <div>
           <p class="badge badge-success">Caja {{ cashRegisterId }}</p>
-          <h1 class="title-xl">Cerrar caja</h1>
-          <p class="text-muted">Verifica los montos por metodo de pago antes de cerrar la sesion.</p>
+          <h1 class="title-xl">Cierre de caja</h1>
+          <p class="text-muted">Verifica el dinero al final de la jornada y realiza el cuadre de turno.</p>
         </div>
       </section>
 
       <section class="close-cash-register-panel panel">
-        <div class="close-summary" aria-label="Resumen de cierre">
+        <!-- Resumen del Turno: Ventas en efectivo, QR, ingresos, egresos -->
+        <div class="turno-summary-section" aria-label="Resumen del turno">
+          <h2 class="title-md turno-title">Resumen del Turno</h2>
+          <div class="turno-metrics-grid">
+            <div class="metric-card metric-efectivo">
+              <span class="metric-label">Ventas en Efectivo</span>
+              <strong class="metric-value">Bs {{ formatCurrency(totalVentasEfectivo) }}</strong>
+            </div>
+
+            <div class="metric-card metric-qr">
+              <span class="metric-label">Ventas por QR</span>
+              <strong class="metric-value">Bs {{ formatCurrency(totalVentasQr) }}</strong>
+            </div>
+
+            <div class="metric-card metric-ingresos">
+              <span class="metric-label">Total Ingresos</span>
+              <strong class="metric-value">Bs {{ formatCurrency(totalIngresos) }}</strong>
+            </div>
+
+            <div class="metric-card metric-egresos">
+              <span class="metric-label">Total Egresos</span>
+              <strong class="metric-value">Bs {{ formatCurrency(totalEgresos) }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conteo y Arqueo General: Esperado, Real y Diferencia -->
+        <div class="close-summary" aria-label="Resumen de arqueo">
           <dl>
             <div>
               <dt>Total esperado</dt>
               <dd>Bs {{ formatCurrency(totalEsperado) }}</dd>
             </div>
             <div>
-              <dt>Total real</dt>
+              <dt>Total real contado</dt>
               <dd>Bs {{ formatCurrency(totalReal) }}</dd>
             </div>
             <div>
-              <dt>Diferencia</dt>
-              <dd [class.negative]="diferenciaTotal < 0" [class.positive]="diferenciaTotal > 0">
-                Bs {{ formatCurrency(diferenciaTotal) }}
+              <dt>Diferencia de cuadre</dt>
+              <dd>
+                @if (diferenciaTipo === 'sobrante') {
+                  <span class="badge badge-warning badge-diff">Sobrante: +Bs {{ formatCurrency(diferenciaAbs) }}</span>
+                } @else if (diferenciaTipo === 'faltante') {
+                  <span class="badge badge-danger badge-diff">Faltante: -Bs {{ formatCurrency(diferenciaAbs) }}</span>
+                } @else {
+                  <span class="badge badge-success badge-diff">Cuadre exacto (0.00)</span>
+                }
               </dd>
             </div>
           </dl>
@@ -59,7 +92,9 @@
                   </div>
 
                   <div class="form-group">
-                    <label class="label" [for]="'real-amount-' + cierre.id_metodo_pago">Monto real</label>
+                    <label class="label" [for]="'real-amount-' + cierre.id_metodo_pago">
+                      Monto real contado (Bs.)
+                    </label>
                     <input
                       class="input"
                       [id]="'real-amount-' + cierre.id_metodo_pago"
@@ -74,8 +109,14 @@
 
                   <div class="amount-row difference-row">
                     <span>Diferencia</span>
-                    <strong [class.negative]="getDiferencia(cierre) < 0" [class.positive]="getDiferencia(cierre) > 0">
-                      Bs {{ formatCurrency(getDiferencia(cierre)) }}
+                    <strong>
+                      @if (getDiferenciaMetodoTipo(cierre) === 'sobrante') {
+                        <span class="badge badge-warning">Sobrante: +Bs {{ formatCurrency(getDiferenciaMetodoAbs(cierre)) }}</span>
+                      } @else if (getDiferenciaMetodoTipo(cierre) === 'faltante') {
+                        <span class="badge badge-danger">Faltante: -Bs {{ formatCurrency(getDiferenciaMetodoAbs(cierre)) }}</span>
+                      } @else {
+                        <span class="badge badge-success">Exacto (0.00)</span>
+                      }
                     </strong>
                   </div>
 
@@ -85,8 +126,8 @@
                       class="input textarea"
                       [id]="'observation-' + cierre.id_metodo_pago"
                       [name]="'observation-' + cierre.id_metodo_pago"
-                      rows="4"
-                      placeholder="Detalle opcional"
+                      rows="3"
+                      placeholder="Detalle opcional (ej. billetes rotos, ajustes)"
                       [(ngModel)]="cierre.observacion"
                     ></textarea>
                   </div>
@@ -106,10 +147,77 @@
             [disabled]="cerrandoCaja || loadingResumen || cierresMetodoPago.length === 0"
             (click)="cerrarCaja()"
           >
-            {{ cerrandoCaja ? 'Cerrando...' : 'Cerrar caja' }}
+            {{ cerrandoCaja ? 'Cerrando caja...' : 'Confirmar Cierre de Caja' }}
           </button>
         </div>
       </section>
     </section>
   </main>
 </div>
+
+<!-- Modal / Pantalla de Liberación de Cajero al Confirmar Cierre -->
+@if (cierreCompletado) {
+  <div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-liberacion-title">
+    <div class="modal-card panel">
+      <header class="modal-header">
+        <div>
+          <span class="badge badge-success">Cierre Confirmado</span>
+          <h2 class="title-lg" id="modal-liberacion-title">Turno Finalizado con Éxito</h2>
+          <p class="text-muted">La sesión ha sido cerrada y el cajero ha sido liberado de esta caja.</p>
+        </div>
+      </header>
+
+      <div class="modal-body liberacion-body">
+        <div class="liberacion-recap">
+          <div class="recap-row">
+            <span>Ventas en Efectivo:</span>
+            <strong>Bs {{ formatCurrency(totalVentasEfectivo) }}</strong>
+          </div>
+          <div class="recap-row">
+            <span>Ventas por QR:</span>
+            <strong>Bs {{ formatCurrency(totalVentasQr) }}</strong>
+          </div>
+          <div class="recap-row">
+            <span>Total Ingresos:</span>
+            <strong>Bs {{ formatCurrency(totalIngresos) }}</strong>
+          </div>
+          <div class="recap-row">
+            <span>Total Egresos:</span>
+            <strong>Bs {{ formatCurrency(totalEgresos) }}</strong>
+          </div>
+          <div class="recap-row divider">
+            <span>Total Esperado:</span>
+            <strong>Bs {{ formatCurrency(totalEsperado) }}</strong>
+          </div>
+          <div class="recap-row">
+            <span>Total Real:</span>
+            <strong>Bs {{ formatCurrency(totalReal) }}</strong>
+          </div>
+          <div class="recap-row">
+            <span>Diferencia Final:</span>
+            <strong>
+              @if (diferenciaTipo === 'sobrante') {
+                <span class="badge badge-warning">Sobrante: +Bs {{ formatCurrency(diferenciaAbs) }}</span>
+              } @else if (diferenciaTipo === 'faltante') {
+                <span class="badge badge-danger">Faltante: -Bs {{ formatCurrency(diferenciaAbs) }}</span>
+              } @else {
+                <span class="badge badge-success">Cuadre Exacto (0.00)</span>
+              }
+            </strong>
+          </div>
+        </div>
+
+        <p class="text-muted" style="margin-top: var(--space-md); font-size: 0.9rem;">
+          La jornada de ventas en esta caja ha sido cerrada correctamente.
+        </p>
+
+        <footer class="modal-actions">
+          <button class="btn btn-primary" type="button" (click)="volverACajas()">
+            Volver al Listado de Cajas
+          </button>
+        </footer>
+      </div>
+    </div>
+  </div>
+}
+

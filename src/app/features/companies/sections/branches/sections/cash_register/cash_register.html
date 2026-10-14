@@ -12,7 +12,6 @@
           <p class="text-muted">Administra las cajas registradoras asignadas a esta sucursal.</p>
         </div>
       </header>
-
       <section class="tabs-panel panel">
         <div class="tabs" role="tablist" aria-label="Secciones de cajas">
           <button
@@ -109,20 +108,13 @@
                           <td class="cash-register-actions-cell">
                             <div class="cash-register-actions">
                               @if (hasPermission('CAJA_ABRIR') && cashRegister.estadoOperativo === 'disponible') {
-                                <a
+                                <button
                                   class="btn btn-primary btn-sm"
-                                  [routerLink]="[
-                                    '/company',
-                                    companyId,
-                                    'branch',
-                                    branchId,
-                                    'cash-register',
-                                    cashRegister.id,
-                                    'open-cash-register'
-                                  ]"
+                                  type="button"
+                                  (click)="abrirModalApertura(cashRegister)"
                                 >
                                   Abrir caja
-                                </a>
+                                </button>
                               }
 
                               @if (hasPermission('CAJA_ABRIR') && cashRegister.estadoOperativo === 'abierta_por_mi') {
@@ -274,4 +266,67 @@
     </section>
   </main>
 </div>
+
+<!-- Modal Apertura de Caja (HU: Apertura de caja con Monto Inicial) -->
+@if (isModalAperturaOpen && selectedCajaParaAbrir) {
+  <div class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-apertura-title">
+    <div class="modal-card panel">
+      <header class="modal-header">
+        <div>
+          <span class="badge badge-success">{{ selectedCajaParaAbrir.codigo }}</span>
+          <h2 class="title-lg" id="modal-apertura-title">Apertura de Caja</h2>
+          <p class="text-muted">Iniciar la jornada de ventas en <strong>{{ selectedCajaParaAbrir.nombre }}</strong></p>
+        </div>
+        <button class="btn-modal-close" type="button" aria-label="Cerrar modal" (click)="cerrarModalApertura()">✕</button>
+      </header>
+
+      <form (submit)="confirmarAperturaCaja($event)" class="modal-form">
+        @if (errorAperturaModal) {
+          <p class="feedback feedback-error" role="alert">{{ errorAperturaModal }}</p>
+        }
+
+        <div class="form-group">
+          <label class="label" for="modal-monto-inicial">
+            Monto Inicial (Bs.) <span class="required">*</span>
+          </label>
+          <input
+            class="input input-lg"
+            id="modal-monto-inicial"
+            name="montoInicial"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00"
+            required
+            autofocus
+            [(ngModel)]="montoInicialApertura"
+          />
+          <small class="text-muted">Efectivo inicial en caja física para dar cambio/sencillo.</small>
+        </div>
+
+        <div class="form-group">
+          <label class="label" for="modal-nota-apertura">Nota / Observación (Opcional)</label>
+          <textarea
+            class="input textarea"
+            id="modal-nota-apertura"
+            name="notaApertura"
+            rows="3"
+            placeholder="Ej. Apertura turno mañana, efectivo contado"
+            [(ngModel)]="notaApertura"
+          ></textarea>
+        </div>
+
+        <footer class="modal-actions">
+          <button class="btn btn-secondary" type="button" (click)="cerrarModalApertura()" [disabled]="abriendoCajaModal">
+            Cancelar
+          </button>
+          <button class="btn btn-primary" type="submit" [disabled]="abriendoCajaModal">
+            {{ abriendoCajaModal ? 'Abriendo caja...' : 'Iniciar Jornada (Abrir Caja)' }}
+          </button>
+        </footer>
+      </form>
+    </div>
+  </div>
+}
+
 

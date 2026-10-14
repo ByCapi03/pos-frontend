@@ -182,6 +182,12 @@ export interface SaleHistoryDetailItem {
   subtotal: number;
   total?: number;
   descripcion: string | null;
+  producto?: {
+    id_producto: number;
+    nombre: string;
+    codigo_barra?: string;
+    unidad_medida?: string;
+  };
 }
 
 export interface SaleHistoryPaymentItem {

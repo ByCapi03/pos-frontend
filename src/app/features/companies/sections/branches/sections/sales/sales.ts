@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import {
@@ -19,7 +20,9 @@ import {
   CreateSaleRequest,
   CashRegisterMovementResponse,
   CashRegisterMovementListItem,
+  CashRegisterClosingSummaryResponse,
   SaleHistoryResponse,
+  SaleHistoryDetailItem,
   CashRegisterService,
 } from '../../../../../../core/services/cash-register.service';
 import {
@@ -117,6 +120,7 @@ interface SaleHistoryRow {
   articulos: number;
   subtotal: number;
   descuentoTotal: number;
+  detalles: SaleHistoryDetailItem[];
 }
 
 type ProductStockRecord = StockSucursalProducto & {
@@ -200,6 +204,158 @@ export class Sales implements OnInit {
   protected paymentMethods: PaymentMethodOption[] = [];
   protected movementItems: CashMovementItem[] = [];
 
+  // HU-11: Historial de compras de clientes y detalle de venta
+  protected historySelectedClientId: number | string = 'all';
+  protected selectedSaleDetail: SaleHistoryRow | null = null;
+  protected isSaleDetailModalOpen = false;
+
+  // HU: Movimiento de caja en PDV (Botones Ingreso y Egreso con caja abierta)
+  protected isQuickMovementModalOpen = false;
+  protected quickMovementTipo: 'INGRESO' | 'EGRESO' = 'INGRESO';
+  protected quickMovementMonto: number | null = null;
+  protected quickMovementConcepto = '';
+  protected quickMovementMetodoPagoId: number | null = null;
+  protected savingQuickMovement = false;
+  protected quickMovementError = '';
+  protected efectivoEsperadoCaja = 0;
+
+  protected get efectivoEsperadoProyectado(): number {
+    const monto = Number(this.quickMovementMonto) || 0;
+    if (this.quickMovementTipo === 'INGRESO') {
+      return this.roundCurrency(this.efectivoEsperadoCaja + monto);
+    } else {
+      return this.roundCurrency(this.efectivoEsperadoCaja - monto);
+    }
+  }
+
+  protected cargarEfectivoEsperado(): void {
+    if (!this.cashRegisterSessionId) return;
+    this.cashRegisterService.getResumenCierreCajaSesion(this.cashRegisterSessionId).subscribe({
+      next: (res: CashRegisterClosingSummaryResponse) => {
+        const efectivo = res.resumen_por_metodo_pago?.find(
+          (m) => m.metodo_pago?.toUpperCase() === 'EFECTIVO',
+        );
+        this.efectivoEsperadoCaja = efectivo?.monto_esperado ?? res.monto_esperado_total ?? 0;
+        this.cdr.markForCheck();
+      },
+      error: () => {},
+    });
+  }
+
+  protected abrirModalMovimientoRapido(tipo: 'INGRESO' | 'EGRESO'): void {
+    this.quickMovementTipo = tipo;
+    this.quickMovementMonto = null;
+    this.quickMovementConcepto = '';
+    this.quickMovementError = '';
+
+    if (this.movementTypes.length === 0) {
+      this.loadMovementTypes();
+    }
+    if (this.paymentMethods.length === 0) {
+      this.loadPaymentMethods();
+    }
+
+    const efectivoMetodo = this.paymentMethods.find((m) => m.nombre.toUpperCase() === 'EFECTIVO');
+    this.quickMovementMetodoPagoId = efectivoMetodo ? efectivoMetodo.id : (this.paymentMethods[0]?.id ?? null);
+
+    this.isQuickMovementModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  protected cerrarModalMovimientoRapido(): void {
+    if (this.savingQuickMovement) return;
+    this.isQuickMovementModalOpen = false;
+    this.quickMovementError = '';
+  }
+
+  protected confirmarMovimientoRapido(event: Event): void {
+    event.preventDefault();
+    this.quickMovementError = '';
+
+    if (!this.quickMovementMonto || this.quickMovementMonto <= 0) {
+      this.quickMovementError = 'Ingresa un monto valido mayor a 0.';
+      return;
+    }
+
+    const concepto = this.quickMovementConcepto.trim();
+    if (!concepto) {
+      this.quickMovementError = 'Ingresa una descripcion o motivo para el movimiento.';
+      return;
+    }
+
+    if (!this.cashRegisterSessionId) {
+      this.quickMovementError = 'No se encontro la sesion de caja activa.';
+      return;
+    }
+
+    const tipo = this.movementTypes.find((t) => t.nombre.toUpperCase() === this.quickMovementTipo);
+    const idTipo = tipo ? tipo.id : (this.quickMovementTipo === 'INGRESO' ? 2 : 3);
+
+    let idMetodo = this.quickMovementMetodoPagoId;
+    if (!idMetodo) {
+      const efectivo = this.paymentMethods.find((m) => m.nombre.toUpperCase() === 'EFECTIVO');
+      idMetodo = efectivo ? efectivo.id : (this.paymentMethods[0]?.id ?? 1);
+    }
+
+    this.savingQuickMovement = true;
+    this.cashRegisterService
+      .crearMovimientoCajaSesion(this.cashRegisterSessionId, {
+        id_tipo_movimiento_caja: idTipo,
+        id_metodo_pago: idMetodo,
+        monto: Number(this.quickMovementMonto),
+        concepto: `${this.quickMovementTipo}: ${concepto}`,
+      })
+      .pipe(
+        finalize(() => {
+          this.savingQuickMovement = false;
+          this.cdr.markForCheck();
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.isQuickMovementModalOpen = false;
+          this.registerMessage = `Movimiento de ${this.quickMovementTipo} por Bs. ${Number(this.quickMovementMonto).toFixed(2)} registrado correctamente.`;
+          this.cargarEfectivoEsperado();
+          this.loadMovementItems();
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.quickMovementError = err?.error?.detail ?? 'No se pudo registrar el movimiento de caja.';
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  protected get filteredSalesHistory(): SaleHistoryRow[] {
+    return this.salesHistory.filter((sale) => {
+      // Excluir ventas anuladas o canceladas (regla HU: únicamente ventas completadas/pagadas)
+      const estadoNorm = (sale.estado || '').toUpperCase();
+      if (estadoNorm.includes('ANULAD') || estadoNorm.includes('CANCELAD')) {
+        return false;
+      }
+
+      // Filtro por cliente
+      if (this.historySelectedClientId !== 'all') {
+        const targetId = Number(this.historySelectedClientId);
+        if (Number(sale.clienteId) !== targetId) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }
+
+  protected openSaleDetailModal(sale: SaleHistoryRow): void {
+    this.selectedSaleDetail = sale;
+    this.isSaleDetailModalOpen = true;
+  }
+
+  protected closeSaleDetailModal(): void {
+    this.selectedSaleDetail = null;
+    this.isSaleDetailModalOpen = false;
+  }
+
   ngOnInit(): void {
     this.validarSesionActiva();
 
@@ -258,6 +414,7 @@ export class Sales implements OnInit {
         
         if (caja && caja.estado_operativo === 'abierta_por_mi' && caja.sesion_activa) {
           this.cashRegisterSessionId = String(caja.sesion_activa.id_caja_sesion);
+          this.cargarEfectivoEsperado();
           
           // Actualizar URL sin recargar para mantener sessionId
           this.router.navigate([], {
@@ -268,6 +425,7 @@ export class Sales implements OnInit {
           });
         } else if (this.cashRegisterSessionId) {
           // Si ya contamos con sessionId en queryParams, permitir continuar operando en POS
+          this.cargarEfectivoEsperado();
           return;
         } else {
           this.router.navigate(['/company', this.companyId, 'branch', this.branchId, 'cash-register']);
@@ -674,6 +832,7 @@ export class Sales implements OnInit {
         this.closePaymentTab();
         this.activeTab = 'register';
         this.chargingSale = false;
+        this.cargarEfectivoEsperado();
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -853,6 +1012,7 @@ export class Sales implements OnInit {
           this.movementActiveTab = 'list';
           this.savingMovement = false;
           this.loadMovementItems();
+          this.cargarEfectivoEsperado();
           this.cdr.detectChanges();
         },
         error: (error) => {
@@ -867,6 +1027,8 @@ export class Sales implements OnInit {
     this.loadRegisterData();
     this.loadSaleTypes();
     this.loadPaymentMethods();
+    this.loadMovementTypes();
+    this.cargarEfectivoEsperado();
 
     if (this.activeTab === 'history') {
       this.loadSalesHistory();
@@ -1251,9 +1413,10 @@ export class Sales implements OnInit {
       this.saleTypes.find((type) => type.id === Number(tipoVentaId))?.nombre ??
       `Tipo ${tipoVentaId}`;
 
-    const client = sale.id_cliente
-      ? String(sale.id_cliente)
-      : 'Consumidor';
+    const matchedClient = this.clients.find((c) => c.id === Number(sale.id_cliente));
+    const client = matchedClient
+      ? matchedClient.nombre
+      : (sale.id_cliente ? `Cliente #${sale.id_cliente}` : 'Consumidor final');
 
     const paymentMethodIds = salePayments.length > 0
       ? salePayments.map((payment) => String(payment.id_metodo_pago)).join(' | ')
@@ -1275,6 +1438,7 @@ export class Sales implements OnInit {
       articulos: saleDetails.reduce((total, detail) => total + Number(detail.cantidad ?? 0), 0),
       subtotal: Number(sale.subtotal ?? 0),
       descuentoTotal: Number(sale.descuento_total ?? 0),
+      detalles: saleDetails,
     };
   }
 

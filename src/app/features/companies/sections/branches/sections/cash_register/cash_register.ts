@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import {
@@ -42,6 +42,7 @@ interface CashRegisterForm {
 })
 export class CashRegister implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly cashRegisterService = inject(CashRegisterService);
   private readonly companyPermissionsService = inject(CompanyPermissionsService);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -56,6 +57,18 @@ export class CashRegister implements OnInit {
   protected cargandoRegistro = false;
   protected cargandoEdicion = false;
   protected editingCashRegisterId: number | null = null;
+
+  // HU: Apertura de caja - Modal de monto inicial y validación de sesión
+  protected isModalAperturaOpen = false;
+  protected selectedCajaParaAbrir: CashRegisterItem | null = null;
+  protected montoInicialApertura: number | null = 0;
+  protected notaApertura = '';
+  protected abriendoCajaModal = false;
+  protected errorAperturaModal = '';
+
+  protected get miCajaAbierta(): CashRegisterItem | undefined {
+    return this.cashRegisters.find((c) => c.estadoOperativo === 'abierta_por_mi');
+  }
 
   protected registerForm: Omit<CashRegisterForm, 'activo'> = {
     codigo: '',
@@ -123,6 +136,82 @@ export class CashRegister implements OnInit {
         this.error = 'No se pudieron cargar las cajas registradoras.';
       },
     });
+  }
+
+  protected abrirModalApertura(caja: CashRegisterItem): void {
+    this.selectedCajaParaAbrir = caja;
+    this.montoInicialApertura = 0;
+    this.notaApertura = 'Apertura de caja';
+    this.errorAperturaModal = '';
+    this.isModalAperturaOpen = true;
+  }
+
+  protected cerrarModalApertura(): void {
+    if (this.abriendoCajaModal) {
+      return;
+    }
+    this.isModalAperturaOpen = false;
+    this.selectedCajaParaAbrir = null;
+    this.errorAperturaModal = '';
+  }
+
+  protected confirmarAperturaCaja(event: SubmitEvent): void {
+    event.preventDefault();
+    this.errorAperturaModal = '';
+
+    if (
+      this.montoInicialApertura === null ||
+      this.montoInicialApertura === undefined ||
+      Number.isNaN(this.montoInicialApertura) ||
+      this.montoInicialApertura < 0
+    ) {
+      this.errorAperturaModal = 'Ingresa un monto inicial valido (mayor o igual a 0).';
+      return;
+    }
+
+    if (!this.selectedCajaParaAbrir) {
+      this.errorAperturaModal = 'No se ha seleccionado una caja para abrir.';
+      return;
+    }
+
+    const cajaId = this.selectedCajaParaAbrir.id;
+    this.abriendoCajaModal = true;
+
+    this.cashRegisterService
+      .abrirSesionCaja(String(cajaId), {
+        monto_inicial: Number(this.montoInicialApertura),
+        nota: this.notaApertura.trim() || 'Apertura de caja',
+      })
+      .pipe(
+        finalize(() => {
+          this.abriendoCajaModal = false;
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
+        next: (response) => {
+          this.isModalAperturaOpen = false;
+          void this.router.navigate(
+            [
+              '/company',
+              this.companyId,
+              'branch',
+              this.branchId,
+              'cash-register',
+              cajaId,
+              'sales',
+            ],
+            {
+              queryParams: { sessionId: response.id_caja_sesion },
+            },
+          );
+        },
+        error: (error) => {
+          this.errorAperturaModal =
+            error?.error?.detail ??
+            'No se pudo abrir la caja. Verifica que no tengas otra sesión abierta.';
+        },
+      });
   }
 
   protected registrarCaja(event: SubmitEvent): void {

@@ -406,7 +406,7 @@ export class SidebarComponent implements OnChanges, OnInit, OnDestroy {
     }
 
     if (!permissions || permissions.length === 0) {
-      return true;
+      return false;
     }
 
     const requiredPermissions = Array.isArray(item.permission) ? item.permission : [item.permission];

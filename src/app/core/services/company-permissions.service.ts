@@ -180,21 +180,13 @@ export class CompanyPermissionsService {
 
   hasPermission(permission: CompanyPermissionCode): boolean {
     const permissions = this.permissionsSignal();
-    const activeCount = Object.values(permissions).filter(Boolean).length;
-    if (activeCount === 0) {
-      return true;
-    }
     return permissions[permission] === true;
   }
 
   savePermissions(permissions: CompanyPermission[]): CompanyPermissionsByCode {
     const permissionsByCode = this.createEmptyPermissions();
 
-    if (!permissions || permissions.length === 0) {
-      for (const code of COMPANY_PERMISSION_CODES) {
-        permissionsByCode[code] = true;
-      }
-    } else {
+    if (permissions && permissions.length > 0) {
       for (const permission of permissions) {
         const permissionCode = this.normalizePermissionCode(permission.codigo);
 

@@ -55,6 +55,7 @@ export class CloseCashRegister {
   protected loadingResumen = false;
   protected resumenError = '';
   protected cerrandoCaja = false;
+  protected cierreCompletado = false;
   protected resumenCierre: CashRegisterClosingSummaryResponse | null = null;
   protected cierresMetodoPago: ClosingMethodRow[] = [];
 
@@ -80,8 +81,69 @@ export class CloseCashRegister {
     return this.roundCurrency(this.totalReal - this.totalEsperado);
   }
 
+  protected get totalVentasEfectivo(): number {
+    const efectivo = this.resumenCierre?.resumen_por_metodo_pago?.find(
+      (m) => m.metodo_pago?.toUpperCase() === 'EFECTIVO',
+    );
+    if (!efectivo) return 0;
+    const ventas = efectivo.movimientos?.filter((m) =>
+      m.concepto?.toUpperCase().includes('VENTA'),
+    );
+    if (ventas && ventas.length > 0) {
+      return this.roundCurrency(ventas.reduce((acc, m) => acc + (m.monto || 0), 0));
+    }
+    return this.roundCurrency(efectivo.total_ingresos || 0);
+  }
+
+  protected get totalVentasQr(): number {
+    const qr = this.resumenCierre?.resumen_por_metodo_pago?.find(
+      (m) => m.metodo_pago?.toUpperCase() === 'QR',
+    );
+    if (!qr) return 0;
+    const ventas = qr.movimientos?.filter((m) =>
+      m.concepto?.toUpperCase().includes('VENTA'),
+    );
+    if (ventas && ventas.length > 0) {
+      return this.roundCurrency(ventas.reduce((acc, m) => acc + (m.monto || 0), 0));
+    }
+    return this.roundCurrency(qr.total_ingresos || 0);
+  }
+
+  protected get totalIngresos(): number {
+    return this.roundCurrency(
+      this.cierresMetodoPago.reduce((acc, c) => acc + (c.total_ingresos || 0), 0),
+    );
+  }
+
+  protected get totalEgresos(): number {
+    return this.roundCurrency(
+      this.cierresMetodoPago.reduce((acc, c) => acc + (c.total_egresos || 0), 0),
+    );
+  }
+
+  protected get diferenciaTipo(): 'sobrante' | 'faltante' | 'exacto' {
+    if (this.diferenciaTotal > 0.009) return 'sobrante';
+    if (this.diferenciaTotal < -0.009) return 'faltante';
+    return 'exacto';
+  }
+
+  protected get diferenciaAbs(): number {
+    return Math.abs(this.diferenciaTotal);
+  }
+
   protected getDiferencia(cierre: ClosingMethodRow): number {
     return this.roundCurrency(this.normalizeMoney(cierre.montoReal) - cierre.monto_esperado);
+  }
+
+  protected getDiferenciaMetodoTipo(cierre: ClosingMethodRow): 'sobrante' | 'faltante' | 'exacto' {
+    const diff = this.getDiferencia(cierre);
+    if (diff > 0.009) return 'sobrante';
+    if (diff < -0.009) return 'faltante';
+    return 'exacto';
+  }
+
+  protected getDiferenciaMetodoAbs(cierre: ClosingMethodRow): number {
+    return Math.abs(this.getDiferencia(cierre));
   }
 
   protected formatCurrency(value: number): string {
@@ -93,6 +155,10 @@ export class CloseCashRegister {
   }
 
   protected cancelar(): void {
+    void this.router.navigate(['/company', this.companyId, 'branch', this.branchId, 'cash-register']);
+  }
+
+  protected volverACajas(): void {
     void this.router.navigate(['/company', this.companyId, 'branch', this.branchId, 'cash-register']);
   }
 
@@ -136,7 +202,9 @@ export class CloseCashRegister {
           message: 'Caja cerrada correctamente.',
         });
 
-        void this.router.navigate(['/company', this.companyId, 'branch', this.branchId, 'cash-register']);
+        this.cerrandoCaja = false;
+        this.cierreCompletado = true;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.cerrandoCaja = false;

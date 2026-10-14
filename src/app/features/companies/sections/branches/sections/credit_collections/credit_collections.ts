@@ -281,6 +281,18 @@ export class CreditCollections implements OnInit {
         this.receivables = Array.isArray(receivables)
           ? receivables.filter((receivable) => this.normalize(receivable.estado) !== 'pagada')
           : [];
+
+        const totalPending = this.roundCurrency(
+          this.receivables.reduce((sum, r) => sum + this.normalizeMoney(r.saldo_pendiente), 0)
+        );
+        if (this.selectedClient && this.selectedClient.id === clientId) {
+          this.selectedClient.balance = totalPending;
+        }
+        const clientItem = this.clients.find((c) => c.id === clientId);
+        if (clientItem) {
+          clientItem.balance = totalPending;
+        }
+
         this.loadingReceivables = false;
         this.cdr.detectChanges();
       },
